@@ -105,7 +105,7 @@ public:
     static void shutdownLLVM() { llvm::llvm_shutdown(); }
 
     // Compile cppcode to llvm::Module and add it to llvm::orc::LLJITBuilder.
-    bool compileCpp(const string& cppcode, string &log, const string *outputIRPath=nullptr)
+    bool compileCpp(const string& cppcode, string &log, const string &outputIRPath="")
     {
         llvm::raw_string_ostream logStream(log);
 
@@ -165,10 +165,10 @@ public:
         if (!module)
             return false;
 
-        if (outputIRPath)
+        if (!outputIRPath.empty())
         {
             error_code error;
-            llvm::ToolOutputFile outfile(*outputIRPath, error, llvm::sys::fs::OF_None);
+            llvm::ToolOutputFile outfile(outputIRPath, error, llvm::sys::fs::OF_None);
             WriteBitcodeToFile(*module, outfile.os()); // save as bitcode
             outfile.keep();
         }

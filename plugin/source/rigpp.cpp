@@ -34,6 +34,11 @@ Definition of the main Maya node that compiles C++ to LLVM IR and execute it.
 #include "rigpp_types.h"
 #include "utils.hpp"
 
+#if _MSC_VER >= 1932 // Visual Studio 2022 version 17.2+
+#pragma comment(linker, "/alternatename:__imp___std_init_once_complete=__imp_InitOnceComplete")
+#pragma comment(linker, "/alternatename:__imp___std_init_once_begin_initialize=__imp_InitOnceBeginInitialize")
+#endif
+
 #define ATTR_PREFIX string("attr_")
 
 string JITHelper::ROOT_PATH;
@@ -595,7 +600,7 @@ bool Rigpp::setupJit(const string &source)
 
 		string log;
 		const string outputIRPath = replaceString(filePath, ".cpp", ".bc");
-		if (!jitHelper.compileCpp(replaceString(cppcode, "@", ATTR_PREFIX), log, &outputIRPath))
+		if (!jitHelper.compileCpp(replaceString(cppcode, "@", ATTR_PREFIX), log, outputIRPath))
 		{
 			MGlobal::displayError(thisNodeFn.name() + ": " + MString(log.c_str()));
 			return false;
